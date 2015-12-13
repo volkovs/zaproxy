@@ -27,18 +27,30 @@ function HttpSessions(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * Gets the sessions of the given site. Optionally returning just the session with the given name.
+ **/
 HttpSessions.prototype.sessions = function (site, session, callback) {
   this.api.request('/httpSessions/view/sessions/', {'site' : site, 'session' : session}, callback);
 };
 
+/**
+ * Gets the name of the active session for the given site.
+ **/
 HttpSessions.prototype.activeSession = function (site, callback) {
   this.api.request('/httpSessions/view/activeSession/', {'site' : site}, callback);
 };
 
+/**
+ * Gets the names of the session tokens for the given site.
+ **/
 HttpSessions.prototype.sessionTokens = function (site, callback) {
   this.api.request('/httpSessions/view/sessionTokens/', {'site' : site}, callback);
 };
 
+/**
+ * Creates an empty session for the given site. Optionally with the given name.
+ **/
 HttpSessions.prototype.createEmptySession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -47,6 +59,9 @@ HttpSessions.prototype.createEmptySession = function (site, session, apikey, cal
   this.api.request('/httpSessions/action/createEmptySession/', {'site' : site, 'session' : session, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Removes the session from the given site.
+ **/
 HttpSessions.prototype.removeSession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -55,6 +70,9 @@ HttpSessions.prototype.removeSession = function (site, session, apikey, callback
   this.api.request('/httpSessions/action/removeSession/', {'site' : site, 'session' : session, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Sets the given session as active for the given site.
+ **/
 HttpSessions.prototype.setActiveSession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -63,6 +81,9 @@ HttpSessions.prototype.setActiveSession = function (site, session, apikey, callb
   this.api.request('/httpSessions/action/setActiveSession/', {'site' : site, 'session' : session, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Unsets the active session of the given site.
+ **/
 HttpSessions.prototype.unsetActiveSession = function (site, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -71,6 +92,9 @@ HttpSessions.prototype.unsetActiveSession = function (site, apikey, callback) {
   this.api.request('/httpSessions/action/unsetActiveSession/', {'site' : site, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Adds the session token to the given site.
+ **/
 HttpSessions.prototype.addSessionToken = function (site, sessiontoken, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -79,6 +103,9 @@ HttpSessions.prototype.addSessionToken = function (site, sessiontoken, apikey, c
   this.api.request('/httpSessions/action/addSessionToken/', {'site' : site, 'sessionToken' : sessiontoken, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Removes the session token from the given site.
+ **/
 HttpSessions.prototype.removeSessionToken = function (site, sessiontoken, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -87,6 +114,9 @@ HttpSessions.prototype.removeSessionToken = function (site, sessiontoken, apikey
   this.api.request('/httpSessions/action/removeSessionToken/', {'site' : site, 'sessionToken' : sessiontoken, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Sets the value of the session token of the given session for the given site.
+ **/
 HttpSessions.prototype.setSessionTokenValue = function (site, session, sessiontoken, tokenvalue, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -95,6 +125,9 @@ HttpSessions.prototype.setSessionTokenValue = function (site, session, sessionto
   this.api.request('/httpSessions/action/setSessionTokenValue/', {'site' : site, 'session' : session, 'sessionToken' : sessiontoken, 'tokenValue' : tokenvalue, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Renames the session of the given site.
+ **/
 HttpSessions.prototype.renameSession = function (site, oldsessionname, newsessionname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

@@ -59,16 +59,18 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/03/03 Added delete(href) method to ensure local map updated 
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/07/16 Issue 1617: ZAP 2.4.0 throws HeadlessExceptions when running in daemon mode on headless machine
+// ZAP: 2015/09/16 Issue 1890: ZAP can't completely scan OWASP Benchmark
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -129,7 +131,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private String linkWithSitesTreeBaseUri;
 	
 	// Used to cache hrefs not added into the historyList
-	private Hashtable<Integer, HistoryReference> historyIdToRef = new Hashtable<>();
+	private ReferenceMap historyIdToRef = new ReferenceMap();
 
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
@@ -282,11 +284,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		if (href != null) {
 			return href;
 		}
-		href = historyIdToRef.get(historyId);
+		href = (HistoryReference) historyIdToRef.get(historyId);
 		if (href == null) {		
 			try {
 				href = new HistoryReference(historyId);
-				addToMap(href);
+				if (href.getHistoryType() != HistoryReference.TYPE_SCANNER_TEMPORARY) {
+					addToMap(href);
+				}
 			} catch (Exception e) {
 				return null;
 			}
@@ -387,7 +391,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private void buildHistory(List<Integer> dbList, HistoryFilter historyFilter) {
 	    HistoryReference historyRef = null;
 	    synchronized (historyTableModel) {
-	        getLogPanel().setModel(EMPTY_MODEL);
+            if (getView() != null) {
+                getLogPanel().setModel(EMPTY_MODEL);
+            }
 	        historyTableModel.clear();
 	        
 	        for (int i=0; i<dbList.size(); i++) {
@@ -422,7 +428,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    			logger.error(e.getMessage(), e);
 	            }
 	        }
-	        getLogPanel().setModel(historyTableModel);
+            if (getView() != null) {
+                getLogPanel().setModel(historyTableModel);
+            }
 	    }
 	}
 

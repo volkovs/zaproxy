@@ -100,7 +100,7 @@ public final class ApiUtils {
 			try {
 				enumVal = Enum.valueOf(enumType, enumValS);
 			} catch (Exception ex) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, paramName + ": "
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName + ": "
 						+ ex.getLocalizedMessage());
 			}
 		}
@@ -122,6 +122,41 @@ public final class ApiUtils {
 		Context context = Model.getSingleton().getSession().getContext(contextId);
 		if (context == null) {
 			throw new ApiException(Type.CONTEXT_NOT_FOUND, contextIdParamName);
+		}
+		return context;
+	}
+
+	/**
+	 * Returns the {@code Context} with the given name. The context's name is obtained from the given {@code parameters}, whose
+	 * name is the value of {@code parameterName}.
+	 * <p>
+	 * The parameter must exist, that is, it should be a mandatory parameter, otherwise a runtime exception is thrown.
+	 *
+	 * @param parameters the parameters that contain the context's name
+	 * @param parameterName the name of the parameter used to obtain the context's name
+	 * @return the {@code Context} with the given name
+	 * @throws ApiException If the context with the given name does not exist
+	 * @since 2.4.3
+	 * @see #getContextByName(String)
+	 * @see JSONObject#getString(String)
+	 */
+	public static Context getContextByName(JSONObject parameters, String parameterName) throws ApiException {
+		return getContextByName(parameters.getString(parameterName));
+	}
+
+	/**
+	 * Returns the {@code Context} with the given name.
+	 *
+	 * @param contextName the name of the context
+	 * @return the {@code Context} with the given name
+	 * @throws ApiException If the context with the given name does not exist
+	 * @since 2.4.3
+	 * @see #getContextByName(JSONObject, String)
+	 */
+	public static Context getContextByName(String contextName) throws ApiException {
+		Context context = Model.getSingleton().getSession().getContext(contextName);
+		if (context == null) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
 		}
 		return context;
 	}

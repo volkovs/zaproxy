@@ -58,8 +58,10 @@ import org.zaproxy.clientapi.gen.ImportLogFiles;
 import org.zaproxy.clientapi.gen.Params;
 import org.zaproxy.clientapi.gen.Pnh;
 import org.zaproxy.clientapi.gen.Pscan;
+import org.zaproxy.clientapi.gen.Reveal;
 import org.zaproxy.clientapi.gen.Script;
 import org.zaproxy.clientapi.gen.Search;
+import org.zaproxy.clientapi.gen.Selenium;
 import org.zaproxy.clientapi.gen.SessionManagement;
 import org.zaproxy.clientapi.gen.Spider;
 import org.zaproxy.clientapi.gen.Users;
@@ -84,8 +86,10 @@ public class ClientApi {
 	public Params params = new Params(this);
 	public Pnh pnh = new Pnh(this);
 	public Pscan pscan = new Pscan(this);
+	public Reveal reveal = new Reveal(this);
 	public Search search = new Search(this);
 	public Script script = new Script(this);
+	public Selenium selenium = new Selenium(this);
 	public SessionManagement sessionManagement = new SessionManagement(this);
 	public Spider spider = new Spider(this);
 	public Users users = new Users(this);
@@ -267,12 +271,7 @@ public class ClientApi {
 
 	public ApiResponse callApi (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
-		Document dom;
-		try {
-			dom = this.callApiDom(component, type, method, params);
-		} catch (Exception e) {
-			throw new ClientApiException(e);
-		}
+		Document dom = this.callApiDom(component, type, method, params);
 		return ApiResponseFactory.getResponse(dom.getFirstChild());
 	}
 
@@ -283,16 +282,24 @@ public class ClientApi {
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
-			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 			//get the factory
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			//Using factory get an instance of document builder
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			//parse using builder to get DOM representation of the XML file
-			return db.parse(uc.getInputStream());
+			return db.parse(getConnectionInputStream(url));
 		} catch (Exception e) {
 			throw new ClientApiException(e);
 		}
+	}
+
+	private InputStream getConnectionInputStream(URL url) throws IOException {
+		HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
+		uc.connect();
+		if (uc.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+			return uc.getErrorStream();
+		}
+		return uc.getInputStream();
 	}
 
 	public byte[] callApiOther (String component, String type, String method,
@@ -302,8 +309,7 @@ public class ClientApi {
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
-			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
-			InputStream in = uc.getInputStream();
+			InputStream in = getConnectionInputStream(url);
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			byte[] buffer = new byte[8 * 1024];
 			try {
@@ -311,8 +317,6 @@ public class ClientApi {
 			    while ((bytesRead = in.read(buffer)) != -1) {
 			    	out.write(buffer, 0, bytesRead);
 			    }
-			} catch (IOException e) {
-				throw new ClientApiException(e);
 			} finally {
 				out.close();
 				in.close();
@@ -405,7 +409,7 @@ public class ClientApi {
     }
 
     public void activeScanSiteInScope(String apikey, String url) throws Exception {
-        ascan.scan(apikey, url, "true", "true", "");
+        ascan.scan(apikey, url, "true", "true", "", "", "");
         // Poll until spider finished
         int status = 0;
         while ( status < 100) {

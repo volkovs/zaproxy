@@ -31,6 +31,10 @@ Ascan.prototype.status = function (scanid, callback) {
   this.api.request('/ascan/view/status/', {'scanId' : scanid}, callback);
 };
 
+Ascan.prototype.scanProgress = function (scanid, callback) {
+  this.api.request('/ascan/view/scanProgress/', {'scanId' : scanid}, callback);
+};
+
 Ascan.prototype.messagesIds = function (scanid, callback) {
   this.api.request('/ascan/view/messagesIds/', {'scanId' : scanid}, callback);
 };
@@ -59,72 +63,99 @@ Ascan.prototype.policies = function (scanpolicyname, policyid, callback) {
   this.api.request('/ascan/view/policies/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}, callback);
 };
 
-Ascan.prototype.optionMaxScansInUI = function (callback) {
-  this.api.request('/ascan/view/optionMaxScansInUI/', callback);
-};
-
-Ascan.prototype.optionShowAdvancedDialog = function (callback) {
-  this.api.request('/ascan/view/optionShowAdvancedDialog/', callback);
-};
-
-Ascan.prototype.optionExcludedParamList = function (callback) {
-  this.api.request('/ascan/view/optionExcludedParamList/', callback);
-};
-
-Ascan.prototype.optionThreadPerHost = function (callback) {
-  this.api.request('/ascan/view/optionThreadPerHost/', callback);
-};
-
-Ascan.prototype.optionHostPerScan = function (callback) {
-  this.api.request('/ascan/view/optionHostPerScan/', callback);
-};
-
-Ascan.prototype.optionMaxResultsToList = function (callback) {
-  this.api.request('/ascan/view/optionMaxResultsToList/', callback);
-};
-
-Ascan.prototype.optionDelayInMs = function (callback) {
-  this.api.request('/ascan/view/optionDelayInMs/', callback);
-};
-
-Ascan.prototype.optionHandleAntiCSRFTokens = function (callback) {
-  this.api.request('/ascan/view/optionHandleAntiCSRFTokens/', callback);
-};
-
-Ascan.prototype.optionRescanInAttackMode = function (callback) {
-  this.api.request('/ascan/view/optionRescanInAttackMode/', callback);
-};
-
-Ascan.prototype.optionPromptInAttackMode = function (callback) {
-  this.api.request('/ascan/view/optionPromptInAttackMode/', callback);
-};
-
-Ascan.prototype.optionTargetParamsInjectable = function (callback) {
-  this.api.request('/ascan/view/optionTargetParamsInjectable/', callback);
-};
-
-Ascan.prototype.optionTargetParamsEnabledRPC = function (callback) {
-  this.api.request('/ascan/view/optionTargetParamsEnabledRPC/', callback);
-};
-
-Ascan.prototype.optionPromptToClearFinishedScans = function (callback) {
-  this.api.request('/ascan/view/optionPromptToClearFinishedScans/', callback);
-};
-
-Ascan.prototype.optionDefaultPolicy = function (callback) {
-  this.api.request('/ascan/view/optionDefaultPolicy/', callback);
+Ascan.prototype.attackModeQueue = function (callback) {
+  this.api.request('/ascan/view/attackModeQueue/', callback);
 };
 
 Ascan.prototype.optionAttackPolicy = function (callback) {
   this.api.request('/ascan/view/optionAttackPolicy/', callback);
 };
 
-Ascan.prototype.scan = function (url, recurse, inscopeonly, scanpolicyname, apikey, callback) {
+Ascan.prototype.optionDefaultPolicy = function (callback) {
+  this.api.request('/ascan/view/optionDefaultPolicy/', callback);
+};
+
+Ascan.prototype.optionDelayInMs = function (callback) {
+  this.api.request('/ascan/view/optionDelayInMs/', callback);
+};
+
+Ascan.prototype.optionExcludedParamList = function (callback) {
+  this.api.request('/ascan/view/optionExcludedParamList/', callback);
+};
+
+Ascan.prototype.optionHandleAntiCSRFTokens = function (callback) {
+  this.api.request('/ascan/view/optionHandleAntiCSRFTokens/', callback);
+};
+
+Ascan.prototype.optionHostPerScan = function (callback) {
+  this.api.request('/ascan/view/optionHostPerScan/', callback);
+};
+
+Ascan.prototype.optionMaxChartTimeInMins = function (callback) {
+  this.api.request('/ascan/view/optionMaxChartTimeInMins/', callback);
+};
+
+Ascan.prototype.optionMaxResultsToList = function (callback) {
+  this.api.request('/ascan/view/optionMaxResultsToList/', callback);
+};
+
+Ascan.prototype.optionMaxScansInUI = function (callback) {
+  this.api.request('/ascan/view/optionMaxScansInUI/', callback);
+};
+
+Ascan.prototype.optionTargetParamsEnabledRPC = function (callback) {
+  this.api.request('/ascan/view/optionTargetParamsEnabledRPC/', callback);
+};
+
+Ascan.prototype.optionTargetParamsInjectable = function (callback) {
+  this.api.request('/ascan/view/optionTargetParamsInjectable/', callback);
+};
+
+Ascan.prototype.optionThreadPerHost = function (callback) {
+  this.api.request('/ascan/view/optionThreadPerHost/', callback);
+};
+
+Ascan.prototype.optionAllowAttackOnStart = function (callback) {
+  this.api.request('/ascan/view/optionAllowAttackOnStart/', callback);
+};
+
+Ascan.prototype.optionInjectPluginIdInHeader = function (callback) {
+  this.api.request('/ascan/view/optionInjectPluginIdInHeader/', callback);
+};
+
+Ascan.prototype.optionPromptInAttackMode = function (callback) {
+  this.api.request('/ascan/view/optionPromptInAttackMode/', callback);
+};
+
+Ascan.prototype.optionPromptToClearFinishedScans = function (callback) {
+  this.api.request('/ascan/view/optionPromptToClearFinishedScans/', callback);
+};
+
+Ascan.prototype.optionRescanInAttackMode = function (callback) {
+  this.api.request('/ascan/view/optionRescanInAttackMode/', callback);
+};
+
+Ascan.prototype.optionShowAdvancedDialog = function (callback) {
+  this.api.request('/ascan/view/optionShowAdvancedDialog/', callback);
+};
+
+Ascan.prototype.scan = function (url, recurse, inscopeonly, scanpolicyname, method, postdata, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}, callback);
+};
+
+/**
+ * Active Scans from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+ **/
+Ascan.prototype.scanAsUser = function (url, contextid, userid, recurse, scanpolicyname, method, postdata, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'recurse' : recurse, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.pause = function (scanid, apikey, callback) {
@@ -255,12 +286,12 @@ Ascan.prototype.setPolicyAttackStrength = function (id, attackstrength, scanpoli
   this.api.request('/ascan/action/setPolicyAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setPolicyAlertThreshold = function (id, attackstrength, scanpolicyname, apikey, callback) {
+Ascan.prototype.setPolicyAlertThreshold = function (id, alertthreshold, scanpolicyname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setPolicyAlertThreshold/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setPolicyAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.setScannerAttackStrength = function (id, attackstrength, scanpolicyname, apikey, callback) {
@@ -271,12 +302,12 @@ Ascan.prototype.setScannerAttackStrength = function (id, attackstrength, scanpol
   this.api.request('/ascan/action/setScannerAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setScannerAlertThreshold = function (id, attackstrength, scanpolicyname, apikey, callback) {
+Ascan.prototype.setScannerAlertThreshold = function (id, alertthreshold, scanpolicyname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setScannerAlertThreshold/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.addScanPolicy = function (scanpolicyname, apikey, callback) {
@@ -295,14 +326,6 @@ Ascan.prototype.removeScanPolicy = function (scanpolicyname, apikey, callback) {
   this.api.request('/ascan/action/removeScanPolicy/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionDefaultPolicy = function (string, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/ascan/action/setOptionDefaultPolicy/', {'String' : string, 'apikey' : apikey}, callback);
-};
-
 Ascan.prototype.setOptionAttackPolicy = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -311,44 +334,20 @@ Ascan.prototype.setOptionAttackPolicy = function (string, apikey, callback) {
   this.api.request('/ascan/action/setOptionAttackPolicy/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionMaxScansInUI = function (integer, apikey, callback) {
+Ascan.prototype.setOptionDefaultPolicy = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setOptionDefaultPolicy/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback) {
+Ascan.prototype.setOptionAllowAttackOnStart = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setOptionShowAdvancedDialog/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Ascan.prototype.setOptionThreadPerHost = function (integer, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/ascan/action/setOptionThreadPerHost/', {'Integer' : integer, 'apikey' : apikey}, callback);
-};
-
-Ascan.prototype.setOptionHostPerScan = function (integer, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/ascan/action/setOptionHostPerScan/', {'Integer' : integer, 'apikey' : apikey}, callback);
-};
-
-Ascan.prototype.setOptionMaxResultsToList = function (integer, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/ascan/action/setOptionMaxResultsToList/', {'Integer' : integer, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setOptionAllowAttackOnStart/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.setOptionDelayInMs = function (integer, apikey, callback) {
@@ -367,12 +366,44 @@ Ascan.prototype.setOptionHandleAntiCSRFTokens = function (bool, apikey, callback
   this.api.request('/ascan/action/setOptionHandleAntiCSRFTokens/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionRescanInAttackMode = function (bool, apikey, callback) {
+Ascan.prototype.setOptionHostPerScan = function (integer, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setOptionRescanInAttackMode/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setOptionHostPerScan/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionInjectPluginIdInHeader = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionInjectPluginIdInHeader/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionMaxChartTimeInMins = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionMaxChartTimeInMins/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionMaxResultsToList = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionMaxResultsToList/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionMaxScansInUI = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.setOptionPromptInAttackMode = function (bool, apikey, callback) {
@@ -383,12 +414,28 @@ Ascan.prototype.setOptionPromptInAttackMode = function (bool, apikey, callback) 
   this.api.request('/ascan/action/setOptionPromptInAttackMode/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionTargetParamsInjectable = function (integer, apikey, callback) {
+Ascan.prototype.setOptionPromptToClearFinishedScans = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setOptionTargetParamsInjectable/', {'Integer' : integer, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setOptionPromptToClearFinishedScans/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionRescanInAttackMode = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionRescanInAttackMode/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionShowAdvancedDialog/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.setOptionTargetParamsEnabledRPC = function (integer, apikey, callback) {
@@ -399,12 +446,20 @@ Ascan.prototype.setOptionTargetParamsEnabledRPC = function (integer, apikey, cal
   this.api.request('/ascan/action/setOptionTargetParamsEnabledRPC/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
-Ascan.prototype.setOptionPromptToClearFinishedScans = function (bool, apikey, callback) {
+Ascan.prototype.setOptionTargetParamsInjectable = function (integer, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setOptionPromptToClearFinishedScans/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+  this.api.request('/ascan/action/setOptionTargetParamsInjectable/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Ascan.prototype.setOptionThreadPerHost = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionThreadPerHost/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
 module.exports = Ascan;

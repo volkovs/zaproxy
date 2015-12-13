@@ -41,7 +41,7 @@ public class SimpleExample {
 			
 			// Start spidering the target
 			System.out.println("Spider : " + target);
-			ApiResponse resp = api.spider.scan(apikey, target, "");
+			ApiResponse resp = api.spider.scan(apikey, target, "", "", "");
 			String scanid;
 			int progress;
 			
@@ -63,7 +63,7 @@ public class SimpleExample {
 			Thread.sleep(2000);
 
 			System.out.println("Active scan : " + target);
-			resp = api.ascan.scan(apikey, target, "True", "False", "");
+			resp = api.ascan.scan(apikey, target, "True", "False", "", "", "");
 			
 			if (! "OK".equals(((ApiResponseElement)resp).getValue())) {
 				System.out.println("Failed to Active Scan target : " + resp.toString(0));

@@ -50,6 +50,9 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/04/17 A problem occur when a single node should be scanned because count start from -1
 // ZAP: 2015/05/04 Issue 1566: Improve active scan's reported progress
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
+// ZAP: 2015/10/29 Issue 2005: Active scanning incorrectly performed on sibling nodes 
+// ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
 
 package org.parosproxy.paros.core.scanner;
 
@@ -70,6 +73,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
@@ -101,6 +105,7 @@ public class HostProcess implements Runnable {
     // ZAP: progress related
     private int nodeInScopeCount = 0;
     private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
+    private final Map<Integer, Integer> mapPluginReqCounts = new HashMap<>();
     private int percentage = 0;
     
     /**
@@ -201,11 +206,17 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(Plugin plugin) {
-        log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
-                + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
-        
         mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
         mapPluginProgress.put(plugin.getId(), 0);
+
+        if (techSet != null && !plugin.targets(techSet)) {
+            listPluginIdSkipped.add(plugin.getId());
+            pluginCompleted(plugin);
+            return;
+        }
+
+        log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
+                + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         
         for (StructuralNode startNode : startNodes) {
 	        if (plugin instanceof AbstractHostPlugin) {
@@ -238,24 +249,29 @@ public class HostProcess implements Runnable {
 
         scanSingleNode(plugin, node);
 
-        if (incRelatedSiblings) {
-            // Also match siblings with the same hierarchic name
-            // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
-            // note that this is only done for the top level.
-            try {
-				Iterator<StructuralNode> iter = node.getParent().getChildIterator();
-				while (iter.hasNext()) {
-				    StructuralNode sibling = iter.next();
-					if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
-				        parentNodes.add(sibling);
-					}
-				}
-			} catch (DatabaseException e) {
-				// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
-			}
-        }
-
         if (parentScanner.scanChildren()) {
+            if (incRelatedSiblings) {
+                // Also match siblings with the same hierarchic name
+                // If we dont do this http://localhost/start might match the GET variant 
+            	// in the Sites tree and miss the hierarchic node.
+                // Note that this is only done for the top level
+                try {
+    				Iterator<StructuralNode> iter = node.getParent().getChildIterator();
+    				String nodeName = SessionStructure.getCleanRelativeName(node, false);
+    				while (iter.hasNext()) {
+    				    StructuralNode sibling = iter.next();
+    					if (! node.isSameAs(sibling) && 
+    							nodeName.equals(
+    									SessionStructure.getCleanRelativeName(sibling, false))) {
+    				        log.debug("traverse: including related sibling " + sibling.getName());
+    				        parentNodes.add(sibling);
+    					}
+    				}
+    			} catch (DatabaseException e) {
+    				// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
+    			}
+            }
+        	
         	for (StructuralNode pNode : parentNodes) {
 	        	Iterator<StructuralNode> iter = pNode.getChildIterator();
 	        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
@@ -640,5 +656,16 @@ public class HostProcess implements Runnable {
 	
 	public String getHostAndPort() {
 		return this.hostAndPort;
+	}
+	
+	public void setPluginRequestCount(int pluginId, int reqCount) {
+		this.mapPluginReqCounts.put(pluginId, reqCount);
+	}
+	
+	public int getPluginRequestCount(int pluginId) {
+		if (this.mapPluginReqCounts.containsKey(pluginId)) {
+			return this.mapPluginReqCounts.get(pluginId);
+		}
+		return 0;
 	}
 }

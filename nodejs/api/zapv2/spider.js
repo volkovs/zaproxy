@@ -47,20 +47,72 @@ Spider.prototype.excludedFromScan = function (callback) {
   this.api.request('/spider/view/excludedFromScan/', callback);
 };
 
+Spider.prototype.optionDomainsAlwaysInScope = function (callback) {
+  this.api.request('/spider/view/optionDomainsAlwaysInScope/', callback);
+};
+
+Spider.prototype.optionDomainsAlwaysInScopeEnabled = function (callback) {
+  this.api.request('/spider/view/optionDomainsAlwaysInScopeEnabled/', callback);
+};
+
+Spider.prototype.optionHandleParameters = function (callback) {
+  this.api.request('/spider/view/optionHandleParameters/', callback);
+};
+
 Spider.prototype.optionMaxDepth = function (callback) {
   this.api.request('/spider/view/optionMaxDepth/', callback);
 };
 
-Spider.prototype.optionScopeText = function (callback) {
-  this.api.request('/spider/view/optionScopeText/', callback);
+Spider.prototype.optionMaxScansInUI = function (callback) {
+  this.api.request('/spider/view/optionMaxScansInUI/', callback);
+};
+
+Spider.prototype.optionRequestWaitTime = function (callback) {
+  this.api.request('/spider/view/optionRequestWaitTime/', callback);
 };
 
 Spider.prototype.optionScope = function (callback) {
   this.api.request('/spider/view/optionScope/', callback);
 };
 
+Spider.prototype.optionScopeText = function (callback) {
+  this.api.request('/spider/view/optionScopeText/', callback);
+};
+
+Spider.prototype.optionSkipURLString = function (callback) {
+  this.api.request('/spider/view/optionSkipURLString/', callback);
+};
+
 Spider.prototype.optionThreadCount = function (callback) {
   this.api.request('/spider/view/optionThreadCount/', callback);
+};
+
+Spider.prototype.optionUserAgent = function (callback) {
+  this.api.request('/spider/view/optionUserAgent/', callback);
+};
+
+Spider.prototype.optionHandleODataParametersVisited = function (callback) {
+  this.api.request('/spider/view/optionHandleODataParametersVisited/', callback);
+};
+
+Spider.prototype.optionParseComments = function (callback) {
+  this.api.request('/spider/view/optionParseComments/', callback);
+};
+
+Spider.prototype.optionParseGit = function (callback) {
+  this.api.request('/spider/view/optionParseGit/', callback);
+};
+
+Spider.prototype.optionParseRobotsTxt = function (callback) {
+  this.api.request('/spider/view/optionParseRobotsTxt/', callback);
+};
+
+Spider.prototype.optionParseSVNEntries = function (callback) {
+  this.api.request('/spider/view/optionParseSVNEntries/', callback);
+};
+
+Spider.prototype.optionParseSitemapXml = function (callback) {
+  this.api.request('/spider/view/optionParseSitemapXml/', callback);
 };
 
 Spider.prototype.optionPostForm = function (callback) {
@@ -71,76 +123,37 @@ Spider.prototype.optionProcessForm = function (callback) {
   this.api.request('/spider/view/optionProcessForm/', callback);
 };
 
-Spider.prototype.optionSkipURLString = function (callback) {
-  this.api.request('/spider/view/optionSkipURLString/', callback);
-};
-
-Spider.prototype.optionRequestWaitTime = function (callback) {
-  this.api.request('/spider/view/optionRequestWaitTime/', callback);
-};
-
-Spider.prototype.optionUserAgent = function (callback) {
-  this.api.request('/spider/view/optionUserAgent/', callback);
-};
-
-Spider.prototype.optionParseComments = function (callback) {
-  this.api.request('/spider/view/optionParseComments/', callback);
-};
-
-Spider.prototype.optionParseRobotsTxt = function (callback) {
-  this.api.request('/spider/view/optionParseRobotsTxt/', callback);
-};
-
-Spider.prototype.optionParseSitemapXml = function (callback) {
-  this.api.request('/spider/view/optionParseSitemapXml/', callback);
-};
-
-Spider.prototype.optionParseSVNEntries = function (callback) {
-  this.api.request('/spider/view/optionParseSVNEntries/', callback);
-};
-
-Spider.prototype.optionParseGit = function (callback) {
-  this.api.request('/spider/view/optionParseGit/', callback);
-};
-
-Spider.prototype.optionHandleParameters = function (callback) {
-  this.api.request('/spider/view/optionHandleParameters/', callback);
-};
-
-Spider.prototype.optionHandleODataParametersVisited = function (callback) {
-  this.api.request('/spider/view/optionHandleODataParametersVisited/', callback);
-};
-
-Spider.prototype.optionDomainsAlwaysInScope = function (callback) {
-  this.api.request('/spider/view/optionDomainsAlwaysInScope/', callback);
-};
-
-Spider.prototype.optionDomainsAlwaysInScopeEnabled = function (callback) {
-  this.api.request('/spider/view/optionDomainsAlwaysInScopeEnabled/', callback);
-};
-
-Spider.prototype.optionMaxScansInUI = function (callback) {
-  this.api.request('/spider/view/optionMaxScansInUI/', callback);
+/**
+ * Sets whether or not the 'Referer' header should be sent while spidering
+ **/
+Spider.prototype.optionSendRefererHeader = function (callback) {
+  this.api.request('/spider/view/optionSendRefererHeader/', callback);
 };
 
 Spider.prototype.optionShowAdvancedDialog = function (callback) {
   this.api.request('/spider/view/optionShowAdvancedDialog/', callback);
 };
 
-Spider.prototype.scan = function (url, maxchildren, apikey, callback) {
+/**
+ * Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
+ **/
+Spider.prototype.scan = function (url, maxchildren, recurse, contextname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'apikey' : apikey}, callback);
+  this.api.request('/spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'recurse' : recurse, 'contextName' : contextname, 'apikey' : apikey}, callback);
 };
 
-Spider.prototype.scanAsUser = function (url, contextid, userid, maxchildren, apikey, callback) {
+/**
+ * Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+ **/
+Spider.prototype.scanAsUser = function (url, contextid, userid, maxchildren, recurse, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'maxChildren' : maxchildren, 'apikey' : apikey}, callback);
+  this.api.request('/spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'maxChildren' : maxchildren, 'recurse' : recurse, 'apikey' : apikey}, callback);
 };
 
 Spider.prototype.pause = function (scanid, apikey, callback) {
@@ -223,14 +236,6 @@ Spider.prototype.excludeFromScan = function (regex, apikey, callback) {
   this.api.request('/spider/action/excludeFromScan/', {'regex' : regex, 'apikey' : apikey}, callback);
 };
 
-Spider.prototype.setOptionSkipURLString = function (string, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionSkipURLString/', {'String' : string, 'apikey' : apikey}, callback);
-};
-
 Spider.prototype.setOptionHandleParameters = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -247,12 +252,28 @@ Spider.prototype.setOptionScopeString = function (string, apikey, callback) {
   this.api.request('/spider/action/setOptionScopeString/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
+Spider.prototype.setOptionSkipURLString = function (string, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionSkipURLString/', {'String' : string, 'apikey' : apikey}, callback);
+};
+
 Spider.prototype.setOptionUserAgent = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
   this.api.request('/spider/action/setOptionUserAgent/', {'String' : string, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionHandleODataParametersVisited = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionHandleODataParametersVisited/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Spider.prototype.setOptionMaxDepth = function (integer, apikey, callback) {
@@ -263,12 +284,52 @@ Spider.prototype.setOptionMaxDepth = function (integer, apikey, callback) {
   this.api.request('/spider/action/setOptionMaxDepth/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
-Spider.prototype.setOptionThreadCount = function (integer, apikey, callback) {
+Spider.prototype.setOptionMaxScansInUI = function (integer, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/setOptionThreadCount/', {'Integer' : integer, 'apikey' : apikey}, callback);
+  this.api.request('/spider/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionParseComments = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionParseComments/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionParseGit = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionParseGit/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionParseRobotsTxt = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionParseRobotsTxt/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionParseSVNEntries = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionParseSVNEntries/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionParseSitemapXml = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionParseSitemapXml/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Spider.prototype.setOptionPostForm = function (bool, apikey, callback) {
@@ -295,60 +356,12 @@ Spider.prototype.setOptionRequestWaitTime = function (integer, apikey, callback)
   this.api.request('/spider/action/setOptionRequestWaitTime/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
-Spider.prototype.setOptionParseComments = function (bool, apikey, callback) {
+Spider.prototype.setOptionSendRefererHeader = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/setOptionParseComments/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionParseRobotsTxt = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionParseRobotsTxt/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionParseSitemapXml = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionParseSitemapXml/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionParseSVNEntries = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionParseSVNEntries/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionParseGit = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionParseGit/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionHandleODataParametersVisited = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionHandleODataParametersVisited/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
-Spider.prototype.setOptionMaxScansInUI = function (integer, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/spider/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey}, callback);
+  this.api.request('/spider/action/setOptionSendRefererHeader/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Spider.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback) {
@@ -357,6 +370,14 @@ Spider.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback)
     apikey = null;
   }
   this.api.request('/spider/action/setOptionShowAdvancedDialog/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionThreadCount = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionThreadCount/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
 module.exports = Spider;

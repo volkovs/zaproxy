@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -80,7 +81,7 @@ import edu.umass.cs.benchlab.har.HarLog;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-	private static Logger log = Logger.getLogger(CoreAPI.class);
+	private static final Logger logger = Logger.getLogger(CoreAPI.class);
 
 	private enum ScanReportType {
 		HTML,
@@ -140,7 +141,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_KEY_PREFIX = "keyPrefix";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
-	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean savingSession = false;
 
 	public CoreAPI() {
@@ -217,7 +217,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Ignore
 					}
 					Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-					log.info(Constant.PROGRAM_TITLE + " terminated.");
+					logger.info(Constant.PROGRAM_TITLE + " terminated.");
 					System.exit(0);
 				}
 			};
@@ -225,9 +225,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -299,9 +296,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 
 			if (!Files.exists(sessionPath)) {
@@ -333,9 +327,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Control.getSingleton().newSession();
 			} else {
 				Path sessionPath = SessionUtils.getSessionPath(sessionName);
-				if (!sessionPath.isAbsolute()) {
-					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-				}
 				String filename = sessionPath.toAbsolutePath().toString();
 				
 				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -360,15 +351,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			String regex = params.getString(PARAM_REGEX);
 			try {
 				session.addExcludeFromProxyRegex(regex);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			} catch (DatabaseException e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (PatternSyntaxException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 			}
 		} else if (ACTION_SET_HOME_DIRECTORY.equals(name)) {
 			File f = new File(params.getString(PARAM_DIR));
 			if (f.exists() && f.isDirectory()) {
 				Model.getSingleton().getOptionsParam().setUserDirectory(f);
 			} else {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_DIR);
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_DIR);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
 			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
@@ -473,7 +467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 					sender.sendAndReceive(tempReq);
 					persistMessage(tempReq);
-					processor.process(request);
+					processor.process(tempReq);
 				}
 			}
 		} finally {
@@ -496,7 +490,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		try {
 			historyRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_ZAP_USER, message);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			logger.warn(e.getMessage(), e);
 			return;
 		}
 
@@ -710,7 +704,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 								
 					}
 				} catch (JSONException e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT);
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PROXY_DETAILS);
 				}
 				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				
@@ -791,13 +785,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 
 				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			}
 
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 
@@ -826,13 +820,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 
 				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			}
 
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 			
@@ -844,7 +838,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
 			} catch (IOException e) {
 				ApiException apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 				
 				msg.setResponseBody(responseBody);
 			}
@@ -869,14 +863,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					logger.error(e.getMessage(), e);
 	
 					ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-					responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+					responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 				}
 			}
 
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 			
@@ -886,17 +880,26 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 
+	private boolean incErrorDetails() {
+		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
+	}
+
 	private static void writeReportLastScanTo(HttpMessage msg, ScanReportType reportType) throws Exception {
 		ReportLastScan rls = new ReportLastScan();
 		StringBuilder report = new StringBuilder();
 		rls.generate(report, Model.getSingleton());
 
-		String type = ScanReportType.XML == reportType ? "xml" : "html";
-		String response = ReportGenerator.stringToHtml(
-				report.toString(),
-				Paths.get(Constant.getZapInstall(), "xml/report." + type + ".xsl").toString());
-
-		msg.setResponseHeader(API.getDefaultResponseHeader("text/" + type + "; charset=UTF-8"));
+		String response;
+		if (ScanReportType.XML == reportType) {
+			// Copy as is
+			msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
+			response = report.toString();
+		} else {
+			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
+			response = ReportGenerator.stringToHtml(
+					report.toString(),
+					Paths.get(Constant.getZapInstall(), "xml/report.html.xsl").toString());
+		}
 
 		msg.setResponseBody(response);
 		msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
